@@ -1,182 +1,194 @@
 <?php
+
 namespace GroupMePHP;
 
-class groups extends client {
-	
-	/**
-	 * index: List the authenticated user's active groups.
-	 * 
-	 * @param array $args
-	 * 		page integer — Fetch a particular page of results. Defaults to 1
-	 * 		per_page integer — Define page size. Defaults to 10
-	 * 
-	 * @return string $return
-	 * 
-	 */
-	public function index($args = array()){
-		$params = array(
-			'url' => '/groups',
-			'method' => 'GET',
-			'query' => $args
-		);
-		
-		return $this->request($params);
-	}
-	
-	/**
-	 * former: List the authenticated user's former groups.
-	 * 
-	 * @return string $return
-	 * 
-	 */
-	public function former(){
-		$params = array(
-			'url' => '/groups/former',
-			'method' => 'GET',
-			'query' => array()
-		);
-		
-		return $this->request($params);
-	}
-	
-	/**
-	 * show: Load a specific group.
-	 * 
-	 * @param string $id
-	 * 
-	 * @return string $return
-	 * 
-	 */
-	public function show($id){
-		$params = array(
-			'url' => '/groups/' . $id,
-			'method' => 'GET',
-			'query' => array()
-		);
-		
-		return $this->request($params);
-	}
-	
-	/**
-	 * create: Create a new group
-	 * 
-	 * @param array $args
-	 * 		name string
-	 * 		description string
-	 * 		image_url string
-	 * 		share boolean — If you pass a true value for share, we'll generate a share URL. Anybody with this URL can join the group.
-	 * 
-	 * @return string $return
-	 * 
-	 */
-	public function create($args){
-		$params = array(
-			'url' => '/groups',
-			'method' => 'POST',
-			'query' => array(),
-			'payload' => $args
-		);
-		
-		return $this->request($params);
-	}
+class groups extends client
+{
+    /**
+     * List the authenticated user's active groups
+     *
+     * The response is paginated, with a default of 10 groups per page
+     *
+     * @param array $args {
+     * @var int $page [optional] Fetch a particular page of results. Defaults to 1
+     * @var int $per_page [optional] Define page size. Defaults to 10
+     * @var string $omit [optional] Comma separated list of data to omit from output. Currently supported value is only "memberships". If used then response will contain empty (null) members field.
+     * }
+     *
+     * @return string|false GroupMe response or false on failure
+     */
+    public function index($args = array())
+    {
+        $params = array(
+            'url' => '/groups',
+            'method' => 'GET',
+            'query' => $args
+        );
+
+        return $this->request($params);
+    }
 
     /**
-     * update: Update a group after creation
+     * List the groups you have left but can rejoin
      *
-     * @param $id
-     * @param array $args
-     *        name string
-     *        description string
-     *        image_url string
-     *        share boolean — If you pass a true value for share, we'll generate a share URL. Anybody with this URL can join the group.
-     * @return string $return
-     *
-     * @internal param required $string $id ID of group to be modified
+     * @return string|false GroupMe response or false on failure
      */
-	public function update($id, $args){
-		$params = array(
-			'url' => '/groups/' . $id . '/update',
-			'method' => 'POST',
-			'query' => array(),
-			'payload' => $args
-		);
-		
-		return $this->request($params);
-	}
-	
-	/**
-	 * destroy: Disband a group
-	 * 
-	 * @param string $id
-	 * 
-	 * @return string $return
-	 * 
-	 */
-	public function destroy($id){
-		$params = array(
-			'url' => '/groups/' . $id . '/destroy',
-			'method' => 'POST',
-			'query' => array(),
-		);
-		
-		return $this->request($params);
-	}
+    public function former()
+    {
+        $params = array(
+            'url' => '/groups/former',
+            'method' => 'GET'
+        );
+
+        return $this->request($params);
+    }
 
     /**
-     * join: Join a shared group
+     * Load a specific group
      *
-     * @param $group_id
-     * @param $share_token
-     * @return string $return
+     * @param string $group_id
      *
+     * @return string|false GroupMe response or false on failure
      */
-    public function join($group_id, $share_token){
+    public function show($group_id)
+    {
+        $params = array(
+            'url' => "/groups/$group_id",
+            'method' => 'GET'
+        );
+
+        return $this->request($params);
+    }
+
+    /**
+     * Create a new group
+     *
+     * @param array $args {
+     * @var string $name Primary name of the group. Maximum 140 characters
+     * @var string $description [optional] A subheading for the group. Maximum 255 characters
+     * @var string $image_url [optional] GroupMe Image Service URL
+     * @var bool $share [optional] If you pass a true value for share, we'll generate a share URL. Anybody with this URL can join the group.
+     * }
+     *
+     * @return string|false GroupMe response or false on failure
+     */
+    public function create($args)
+    {
+        $params = array(
+            'url' => '/groups',
+            'method' => 'POST',
+            'payload' => $args
+        );
+
+        return $this->request($params);
+    }
+
+    /**
+     * Update a group after creation
+     *
+     * @param string $group_id ID of group to be modified
+     * @param array $args {
+     * @var string $name
+     * @var string $description
+     * @var string $image_url
+     * @var bool $office_mode
+     * @var bool $share If you pass a true value for share, we'll generate a share URL. Anybody with this URL can join the group.
+     * }
+     *
+     * @return string|false GroupMe response or false on failure
+     */
+    public function update($group_id, $args)
+    {
+        $params = array(
+            'url' => "/groups/$group_id/update",
+            'method' => 'POST',
+            'payload' => $args
+        );
+
+        return $this->request($params);
+    }
+
+    /**
+     * Disband a group
+     *
+     * This action is only available to the group creator
+     *
+     * @param string $group_id
+     *
+     * @return string|false GroupMe response or false on failure
+     */
+    public function destroy($group_id)
+    {
+        $params = array(
+            'url' => "/groups/$group_id/destroy",
+            'method' => 'POST'
+        );
+
+        return $this->request($params);
+    }
+
+    /**
+     * Join a shared group
+     *
+     * @param string $group_id
+     * @param string $share_token
+     *
+     * @return string|false GroupMe response or false on failure
+     */
+    public function join($group_id, $share_token)
+    {
         $params = array(
             'url' => "/groups/$group_id/join/$share_token",
-            'method' => 'POST',
-            'query' => array(),
+            'method' => 'POST'
         );
 
         return $this->request($params);
     }
 
     /**
-     * rejoin: Rejoin a group. Only works if you previously removed yourself.
+     * Rejoin a group. Only works if you previously removed yourself
      *
-     * @param $group_id
-     * @return string $return
+     * @param string $group_id
      *
+     * @return string|false GroupMe response or false on failure
      */
-    public function rejoin($group_id){
+    public function rejoin($group_id)
+    {
         $params = array(
-            'url' => "/groups/join",
+            'url' => '/groups/join',
             'method' => 'POST',
-            'query' => array(),
-            'payload' => array("group_id" => $group_id)
+            'payload' => array('group_id' => $group_id)
         );
 
         return $this->request($params);
     }
 
     /**
-     * changeOwners: Change owners of requested groups. This action is only available to the current group owner.
-     * 
-     * @param array $args
-     * 		    group_id string — The ID of the group
-     * 		    owner_id string — The ID of the new owner
-     * 
-     * @return string $return
-     * 
+     * Change owner of requested groups
+     *
+     * This action is only available to the group creator.
+     * Response is array of result objects which contain status field - the result of change owner action for every request:
+     * * '200' - OK
+     * * '400' - when requestor is also a new owner
+     * * '403' - requestor is not owner of the group
+     * * '404' - group or new owner not found or new owner is not member of the group
+     * * '405' - request object is missing required field or any of the required fields is not an ID
+     *
+     * @param array[] $args One request is an object where owner_id is the new owner who must be active member of a group specified by group_id. {
+     * @var string $group_id
+     * @var string $owner_id
+     * }
+     *
+     * @return string|false GroupMe response or false on failure
      */
-    public function changeOwners($args = array()){
-	$params = array(
+    public function changeOwners($args)
+    {
+        $params = array(
             'url' => '/groups/change_owners',
             'method' => 'POST',
-            'query' => array(),
-            'payload' => array("requests" => $args)
+            'payload' => array('requests' => $args)
         );
 
         return $this->request($params);
     }
 }
-?>

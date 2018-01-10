@@ -1,61 +1,64 @@
 <?php
+
 namespace GroupMePHP;
 
-class leaderboard extends client {
-
+class leaderboard extends client
+{
     /**
-     * A list of the liked messages in the group for a given period of time. Messages are ranked in order of number of likes.
+     * A list of the liked messages in the group for a given period of time
+     *
+     * Messages are ranked in order of number of likes
      *
      * @param string $group_id
-     * @param string $period <day|week|month|>
+     * @param string $period one of: 'day', 'week', or 'month'
      *
-     * @return string $return
-     *
+     * @return string|false GroupMe response or false on failure
      */
-    public function index($group_id, $period){
+    public function index($group_id, $period)
+    {
         $params = array(
-            'url' => "/groups/$group_id/likes?period=$period",
+            'url' => "/groups/$group_id/likes",
             'method' => 'GET',
-            'query' => array(),
+            'query' => array("period" => $period)
         );
 
         return $this->request($params);
     }
 
     /**
-     * A list of messages you have liked. Messages are returned in reverse chrono-order. Note that the payload includes a liked_at timestamp in ISO-8601 format.
+     * A list of messages you have liked
+     *
+     * Messages are returned in reverse chrono-order.
+     * Note that the payload includes a liked_at timestamp in ISO-8601 format
      *
      * @param string $group_id
      *
-     * @return string $return
-     *
+     * @return string|false GroupMe response or false on failure
      */
-    public function myLikes($group_id){
+    public function myLikes($group_id)
+    {
         $params = array(
             'url' => "/groups/$group_id/likes/mine",
-            'method' => 'GET',
-            'query' => array(),
+            'method' => 'GET'
         );
 
         return $this->request($params);
     }
 
     /**
-     * A list of messages you have liked. Messages are returned in reverse chrono-order. Note that the payload includes a liked_at timestamp in ISO-8601 format.
+     * A list of messages others have liked
      *
      * @param string $group_id
      *
-     * @return string $return
-     *
+     * @return string|false GroupMe response or false on failure
      */
-    public function myHits($group_id){
+    public function myHits($group_id)
+    {
         $params = array(
             'url' => "/groups/$group_id/likes/for_me",
-            'method' => 'GET',
-            'query' => array(),
+            'method' => 'GET'
         );
 
         return $this->request($params);
     }
 }
-?>
